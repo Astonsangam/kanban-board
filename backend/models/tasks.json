@@ -3,7 +3,7 @@
     "id": 1,
     "title": "Task 1",
     "description": "This is the first task",
-    "status": "To Do"
+    "status": "In Progress"
   },
   {
     "id": 2,
@@ -15,6 +15,18 @@
     "id": 3,
     "title": "Task 3",
     "description": "This is the third task",
+    "status": "Done"
+  },
+  {
+    "id": 1767713707543,
+    "title": "testj2",
+    "description": "afhjasdfh",
+    "status": "To Do"
+  },
+  {
+    "id": 1767713747352,
+    "title": "test 3",
+    "description": "askjdfh asdfh  ",
     "status": "Done"
   }
 ]

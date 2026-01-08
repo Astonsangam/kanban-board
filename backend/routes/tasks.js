@@ -21,7 +21,7 @@ router.get('/', (req, res) => {
 });
 
 // Create a new task
-router.post('/', (.req, res) => {
+router.post('/', (req, res) => {
     const tasks = readTasksFromFile();
     const newTask = {
         id: Date.now(),

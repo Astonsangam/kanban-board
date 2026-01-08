@@ -2,103 +2,155 @@ import React, { useState, useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import Column from './Column';
 
+const API_URL = 'http://localhost:5000/api/tasks';
+
 const Board = () => {
-    const [tasks, setTasks] = useState([]);
+    const [columns, setColumns] = useState({
+        'To Do': [],
+        'In Progress': [],
+        'Done': [],
+    });
 
     useEffect(() => {
-        const savedTasks = localStorage.getItem('tasks');
-        if (savedTasks) {
-            setTasks(JSON.parse(savedTasks));
-        } else {
-            // Initial data if localStorage is empty
-            const initialTasks = [
-                { id: 1, title: 'Task 1', description: 'This is the first task', status: 'To Do' },
-                { id: 2, title: 'Task 2', description: 'This is the second task', status: 'In Progress' },
-                { id: 3, title: 'Task 3', description: 'This is the third task', status: 'Done' }
-            ];
-            setTasks(initialTasks);
-            localStorage.setItem('tasks', JSON.stringify(initialTasks));
-        }
+        fetch(API_URL)
+            .then(res => res.json())
+            .then(tasks => {
+                const newColumns = {
+                    'To Do': tasks.filter(task => task.status === 'To Do'),
+                    'In Progress': tasks.filter(task => task.status === 'In Progress'),
+                    'Done': tasks.filter(task => task.status === 'Done'),
+                };
+                setColumns(newColumns);
+            });
     }, []);
 
     const onDragEnd = (result) => {
-        const { destination, source, draggableId } = result;
+        const { source, destination, draggableId } = result;
+        if (!destination) return;
 
-        if (!destination) {
+        if (source.droppableId === destination.droppableId && source.index === destination.index) {
             return;
         }
+        
+        const startColumn = columns[source.droppableId];
+        const endColumn = columns[destination.droppableId];
+        
+        const startTasks = Array.from(startColumn);
+        const [removed] = startTasks.splice(source.index, 1);
+        
+        // Update status in the frontend first for responsiveness
+        removed.status = destination.droppableId;
 
-        if (
-            destination.droppableId === source.droppableId &&
-            destination.index === source.index
-        ) {
-            return;
+        const newStartTasks = {
+            ...columns,
+            [source.droppableId]: startTasks,
+        };
+
+        if (source.droppableId === destination.droppableId) {
+            startTasks.splice(destination.index, 0, removed);
+            setColumns(newStartTasks);
+        } else {
+            const endTasks = Array.from(endColumn);
+            endTasks.splice(destination.index, 0, removed);
+            const newEndTasks = {
+                ...newStartTasks,
+                [destination.droppableId]: endTasks,
+            };
+            setColumns(newEndTasks);
         }
 
-        const updatedTasks = Array.from(tasks);
-        const movedTask = updatedTasks.find(task => task.id == draggableId);
-        
-        if (!movedTask) return;
-
-        movedTask.status = destination.droppableId;
-        
-        const newTasks = updatedTasks.map(task => 
-            task.id == movedTask.id ? movedTask : task
-        );
-        
-        setTasks(newTasks);
-        localStorage.setItem('tasks', JSON.stringify(newTasks));
+        fetch(`${API_URL}/${draggableId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: destination.droppableId }),
+        });
     };
 
     const addTask = (title, description, status) => {
-        const newTask = {
-            id: Date.now(),
-            title,
-            description,
-            status
-        };
-        const newTasks = [...tasks, newTask];
-        setTasks(newTasks);
-        localStorage.setItem('tasks', JSON.stringify(newTasks));
+        fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title, description, status }),
+        })
+            .then(res => res.json())
+            .then(newTask => {
+                const newColumns = {
+                    ...columns,
+                    [status]: [...columns[status], newTask],
+                };
+                setColumns(newColumns);
+            });
     };
 
     const updateTask = (id, newTitle, newDescription) => {
-        const updatedTasks = tasks.map(task => {
-            if (task.id === id) {
-                return { ...task, title: newTitle, description: newDescription };
-            }
-            return task;
-        });
-        setTasks(updatedTasks);
-        localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+        fetch(`${API_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title: newTitle, description: newDescription }),
+        })
+            .then(res => res.json())
+            .then(updatedTask => {
+                const newColumns = { ...columns };
+                for (const column in newColumns) {
+                    newColumns[column] = newColumns[column].map(task => {
+                        if (task.id === id) {
+                            return updatedTask;
+                        }
+                        return task;
+                    });
+                }
+                setColumns(newColumns);
+            });
     };
 
     const moveTask = (id, newStatus) => {
-        const updatedTasks = tasks.map(task => {
-            if (task.id === id) {
-                return { ...task, status: newStatus };
+        let taskToMove;
+        const newColumns = { ...columns };
+
+        for (const column in newColumns) {
+            const taskIndex = newColumns[column].findIndex(task => task.id === id);
+            if (taskIndex > -1) {
+                [taskToMove] = newColumns[column].splice(taskIndex, 1);
+                break;
             }
-            return task;
-        });
-        setTasks(updatedTasks);
-        localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+        }
+
+        if (taskToMove) {
+            taskToMove.status = newStatus;
+            newColumns[newStatus].push(taskToMove);
+            setColumns(newColumns);
+
+            fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: newStatus }),
+            });
+        }
     };
 
     const deleteTask = (id) => {
-        const newTasks = tasks.filter(task => task.id !== id);
-        setTasks(newTasks);
-        localStorage.setItem('tasks', JSON.stringify(newTasks));
-    };
-
-    const columns = {
-        'To Do': tasks.filter(task => task.status === 'To Do'),
-        'In Progress': tasks.filter(task => task.status === 'In Progress'),
-        'Done': tasks.filter(task => task.status === 'Done'),
+        fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+        }).then(() => {
+            const newColumns = { ...columns };
+            for (const column in newColumns) {
+                newColumns[column] = newColumns[column].filter(task => task.id !== id);
+            }
+            setColumns(newColumns);
+        });
     };
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+            <div className="board">
                 {Object.entries(columns).map(([columnId, columnTasks]) => (
                     <Column
                         key={columnId}
@@ -108,6 +160,7 @@ const Board = () => {
                         updateTask={updateTask}
                         deleteTask={deleteTask}
                         moveTask={moveTask}
+                        data-column-id={columnId}
                     />
                 ))}
             </div>

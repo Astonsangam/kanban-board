@@ -19,42 +19,46 @@ const Task = ({ task, updateTask, deleteTask, moveTask }) => {
     const columns = ['To Do', 'In Progress', 'Done'];
     const otherColumns = columns.filter(c => c !== task.status);
 
+    const handleDelete = () => {
+        if (window.confirm('Are you sure you want to delete this task?')) {
+            deleteTask(task.id);
+        }
+    };
+
     return (
-        <div style={{ border: '1px solid lightgrey', padding: '8px', marginBottom: '8px', backgroundColor: 'white', borderRadius: '3px', position: 'relative' }}>
+        <div className="task">
             {isEditing ? (
                 <div>
                     <input
                         type="text"
                         value={editedTitle}
                         onChange={(e) => setEditedTitle(e.target.value)}
-                        style={{ width: '100%', marginBottom: '5px' }}
                     />
                     <textarea
                         value={editedDescription}
                         onChange={(e) => setEditedDescription(e.target.value)}
-                        style={{ width: '100%', marginBottom: '5px' }}
                     />
-                    <button onClick={handleSave} style={{ marginRight: '5px' }}>Save</button>
+                    <button onClick={handleSave}>Save</button>
                     <button onClick={() => setIsEditing(false)}>Cancel</button>
                 </div>
             ) : (
                 <div>
                     <h4>{task.title}</h4>
                     <p>{task.description}</p>
-                    <div style={{ position: 'absolute', top: '5px', right: '5px' }}>
+                    <div className="task-actions">
                         {isMoving ? (
                             <div>
                                 <select onChange={(e) => handleMove(e.target.value)} defaultValue="">
                                     <option value="" disabled>Move to...</option>
                                     {otherColumns.map(col => <option key={col} value={col}>{col}</option>)}
                                 </select>
-                                <button onClick={() => setIsMoving(false)} style={{ marginLeft: '5px' }}>Cancel</button>
+                                <button onClick={() => setIsMoving(false)}>Cancel</button>
                             </div>
                         ) : (
                             <div>
-                                <button onClick={() => setIsMoving(true)} style={{ marginRight: '5px' }}>Move</button>
-                                <button onClick={() => setIsEditing(true)} style={{ marginRight: '5px' }}>Edit</button>
-                                <button onClick={() => deleteTask(task.id)}>Delete</button>
+                                <button onClick={() => setIsMoving(true)}>Move</button>
+                                <button onClick={() => setIsEditing(true)}>Edit</button>
+                                <button onClick={handleDelete}>Delete</button>
                             </div>
                         )}
                     </div>

@@ -16,14 +16,14 @@ const Column = ({ columnId, tasks, addTask, updateTask, deleteTask, moveTask }) 
     };
 
     return (
-        <div style={{ margin: '10px', border: '1px solid lightgrey', borderRadius: '5px', width: '30%', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ padding: '8px', background: '#f0f0f0', margin: '0' }}>{columnId}</h3>
+        <div className="column" data-column-id={columnId}>
+            <h3>{columnId}</h3>
             <Droppable droppableId={columnId}>
                 {(provided) => (
                     <div
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        style={{ padding: '8px', flexGrow: 1, minHeight: '100px' }}
+                        style={{ flexGrow: 1, minHeight: '100px' }}
                     >
                         {tasks.map((task, index) => (
                             <Draggable key={task.id} draggableId={String(task.id)} index={index}>
@@ -42,7 +42,7 @@ const Column = ({ columnId, tasks, addTask, updateTask, deleteTask, moveTask }) 
                     </div>
                 )}
             </Droppable>
-            <div style={{ padding: '8px', borderTop: '1px solid lightgrey' }}>
+            <div>
                 {isAddingTask ? (
                     <div>
                         <input
@@ -59,11 +59,11 @@ const Column = ({ columnId, tasks, addTask, updateTask, deleteTask, moveTask }) 
                             onChange={(e) => setNewTaskDescription(e.target.value)}
                             style={{ width: '100%', padding: '5px', marginBottom: '5px' }}
                         />
-                        <button onClick={handleAddTask} style={{ width: '100%', padding: '5px' }}>Add Task</button>
+                        <button onClick={handleAddTask} className="add-task-btn">Add Task</button>
                         <button onClick={() => setIsAddingTask(false)} style={{ width: '100%', padding: '5px', marginTop: '5px' }}>Cancel</button>
                     </div>
                 ) : (
-                    <button onClick={() => setIsAddingTask(true)} style={{ width: '100%', padding: '5px' }}>Add Task</button>
+                    <button onClick={() => setIsAddingTask(true)} className="add-task-btn">Add Task</button>
                 )}
             </div>
         </div>

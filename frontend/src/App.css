@@ -4,3 +4,77 @@
   padding: 2rem;
   text-align: center;
 }
+
+.App {
+  background-color: #000000;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 123, 255, 0.5);
+}
+
+.board {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.column {
+  background-color: #2a2a2a;
+  border-radius: 5px;
+  padding: 10px;
+  width: 300px;
+  min-height: 400px;
+}
+
+.column h3 {
+    padding: 10px;
+    margin: -10px -10px 10px -10px;
+    border-radius: 5px 5px 0 0;
+    font-weight: bold;
+    text-align: center;
+    color: #ffffff;
+}
+
+.column[data-column-id="To Do"] h3 {
+    background-color: #007bff;
+}
+
+.column[data-column-id="In Progress"] h3 {
+    background-color: #fd7e14;
+}
+
+.column[data-column-id="Done"] h3 {
+    background-color: #28a745;
+}
+
+.task {
+  background-color: #3c3c3c;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  border-left: 5px solid;
+}
+
+.column[data-column-id="To Do"] .task {
+    border-left-color: #007bff;
+}
+
+.column[data-column-id="In Progress"] .task {
+    border-left-color: #fd7e14;
+}
+
+.column[data-column-id="Done"] .task {
+    border-left-color: #28a745;
+}
+
+.add-task-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}

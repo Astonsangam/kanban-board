@@ -73,3 +73,4 @@ You should now see the Kanban board in your browser.
 -   **Deployment:** This setup can be easily deployed. The `backend` could be deployed to a service like Render or Vercel (for serverless functions), and the `frontend` to Netlify or Vercel.
 -   **Database:** The current backend uses a simple `tasks.json` file for persistence. For a production environment, you would replace this with a proper database like MongoDB, PostgreSQL, or MySQL, and update the `tasks.js` routes accordingly.
 -   **Styling:** Basic inline styles and `App.css`/`index.css` are used for styling. For a more robust solution, a CSS framework (e.g., Tailwind CSS, Bootstrap) or a styling library (e.g., Styled Components) could be integrated.
+# kanban
